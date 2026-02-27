@@ -15,6 +15,7 @@ Este proyecto representa una solución integral para la administración hotelera
 *   **CAMILA ANDREA HERRERA GAMBOA** - Grupo 56648
 
 **Curso:** ADMINISTRACION DE BASES DE DATOS  
+**Docente:** SERGIO ALEXANDER MORA NOVOA  
 **Programa:** Ingeniería de Sistemas  
 **Institución:** Corporación Unificada Nacional de Educación Superior - CUN  
 **Año:** 2026
