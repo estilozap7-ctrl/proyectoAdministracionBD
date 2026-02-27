@@ -11,8 +11,8 @@ router.get('/health', (req, res) => {
 });
 
 // Resource routes
-router.use('/reservations', reservationsRouter);
-router.use('/guests', guestsRouter);
-router.use('/rooms', roomsRouter);
+router.use('/reservaciones', reservationsRouter);
+router.use('/huespedes', guestsRouter);
+router.use('/habitaciones', roomsRouter);
 
 module.exports = router;

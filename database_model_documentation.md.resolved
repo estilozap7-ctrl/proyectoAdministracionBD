@@ -1,0 +1,115 @@
+# Documentación del Modelo de Datos - Better Homes Hotel
+
+Este documento describe la estructura de la base de datos `hotel_db`, detallando las entidades, sus atributos y las relaciones que permiten el funcionamiento del sistema de reservaciones.
+
+## 1. Diagrama Entidad-Relación (ERD)
+
+A continuación se presenta la representación conceptual de las entidades y cómo interactúan entre sí.
+
+```mermaid
+erDiagram
+    HUESPED ||--o{ RESERVACION : realiza
+    HABITACION ||--o{ RESERVACION : contiene
+
+    HUESPED {
+        int id_huesped PK
+        string nombre
+        string apellido
+        string email UK
+        string telefono
+        string documento UK
+        string nacionalidad
+        datetime creado_en
+        datetime actualizado_en
+    }
+
+    HABITACION {
+        int id_habitacion PK
+        string numero UK
+        enum tipo
+        int capacidad
+        decimal precio_noche
+        int piso
+        boolean disponible
+        text descripcion
+        datetime creado_en
+        datetime actualizado_en
+    }
+
+    RESERVACION {
+        int id_reservacion PK
+        int id_huesped FK
+        int id_habitacion FK
+        date fecha_entrada
+        date fecha_salida
+        enum estado
+        decimal precio_total
+        text notas
+        datetime creado_en
+        datetime actualizado_en
+    }
+```
+
+---
+
+## 2. Modelo Relacional
+
+El modelo relacional describe la implementación física de las tablas y sus restricciones de integridad.
+
+### Tabla: `huespedes`
+Almacena la información de contacto e identificación de los clientes.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_huesped` | INT | PK, AI | Identificador único del huésped. |
+| `nombre` | VARCHAR(100) | NOT NULL | Nombre(s) del huésped. |
+| `apellido` | VARCHAR(100) | NOT NULL | Apellido(s) del huésped. |
+| `email` | VARCHAR(150) | UNIQUE, NOT NULL | Correo electrónico (validado). |
+| `telefono` | VARCHAR(20) | NULL | Número de contacto. |
+| `documento` | VARCHAR(50) | UNIQUE, NULL | DNI, Pasaporte o ID oficial. |
+| `nacionalidad` | VARCHAR(80) | NULL | País de origen. |
+| `creado_en` | DATETIME | NOT NULL | Fecha de registro en el sistema. |
+| `actualizado_en` | DATETIME | NOT NULL | Fecha de última modificación. |
+
+### Tabla: `habitaciones`
+Define las características y disponibilidad de las unidades del hotel.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_habitacion` | INT | PK, AI | Identificador único de la habitación. |
+| `numero` | VARCHAR(10) | UNIQUE, NOT NULL | Número físico (ej: '101'). |
+| `tipo` | ENUM | NOT NULL | 'individual', 'doble', 'suite', 'penthouse'. |
+| `capacidad` | INT | DEFAULT 2 | Capacidad máxima de personas. |
+| `precio_noche` | DECIMAL(10,2)| NOT NULL | Costo por una noche de estancia. |
+| `piso` | INT | NULL | Nivel en el que se encuentra. |
+| `disponible` | BOOLEAN | DEFAULT TRUE | Estado de disponibilidad actual. |
+| `descripcion` | TEXT | NULL | Detalles adicionales (vistas, servicios). |
+
+### Tabla: `reservaciones`
+Actúa como la tabla de hechos que conecta a los huéspedes con las habitaciones.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_reservacion` | INT | PK, AI | Folio de la reservación. |
+| `id_huesped` | INT | FK | Relación con `huespedes(id_huesped)`. |
+| `id_habitacion` | INT | FK | Relación con `habitaciones(id_habitacion)`. |
+| `fecha_entrada` | DATE | NOT NULL | Fecha de inicio del hospedaje. |
+| `fecha_salida` | DATE | NOT NULL | Fecha de fin del hospedaje. |
+| [estado](file:///d:/React/googleGravioty/proyectoAdministracionBD/hotelfinal/src/components/ReservationList.jsx#17-26) | ENUM | DEFAULT 'activa' | 'activa', 'cancelada', 'completada'. |
+| `precio_total` | DECIMAL(10,2)| NULL | Monto total calculado por la estancia. |
+| `notas` | TEXT | NULL | Comentarios o peticiones especiales. |
+
+---
+
+## 3. Relaciones y Reglas de Negocio
+
+1.  **Huésped a Reservación (1:N):**
+    - Un huésped puede tener múltiples reservaciones a lo largo del tiempo.
+    - Una reservación pertenece obligatoriamente a un único huésped.
+
+2.  **Habitación a Reservación (1:N):**
+    - Una habitación puede estar asociada a muchas reservaciones (en fechas distintas).
+    - Una reservación específica se asigna a una sola habitación.
+
+3.  **Integridad Referencial:**
+    - No se puede eliminar un huésped o una habitación que tenga reservaciones activas vinculadas, garantizando la trazabilidad histórica de los datos.

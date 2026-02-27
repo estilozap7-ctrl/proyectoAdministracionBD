@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Provider } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { Provider, useDispatch } from 'react-redux';
 import { store } from './store/store';
+import { fetchReservaciones } from './store/slices/reservationsSlice';
 import Layout from './components/Layout';
 import SearchBar from './components/SearchBar';
 import ReservationForm from './components/ReservationForm';
@@ -9,8 +10,15 @@ import Login from './components/Login';
 import './index.css';
 
 function AppContent() {
+  const dispatch = useDispatch();
   const [editingReservation, setEditingReservation] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchReservaciones());
+    }
+  }, [isAuthenticated, dispatch]);
 
   const handleEdit = (reservation) => {
     setEditingReservation(reservation);
