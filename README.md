@@ -10,6 +10,17 @@ Este proyecto representa una solución integral para la administración hotelera
 
 ---
 
+### 👥 Desarrollado por:
+*   **Luis Alberto Buelvas Cogollo** - Grupo 56647
+*   **CAMILA ANDREA HERRERA GAMBOA** - Grupo 56648
+
+**Curso:** ADMINISTRACION DE BASES DE DATOS  
+**Programa:** Ingeniería de Sistemas  
+**Institución:** Corporación Unificada Nacional de Educación Superior - CUN  
+**Año:** 2026
+
+---
+
 ## 📑 Índice de Contenido
 1. [Diagrama Entidad-Relación (ERD)](#1-diagrama-entidad-relación-erd)
 2. [Requerimientos del Sistema](#2-requerimientos-del-sistema)
