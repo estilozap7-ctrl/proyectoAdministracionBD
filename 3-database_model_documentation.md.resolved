@@ -1,0 +1,312 @@
+# Documentación del Modelo de Datos - Better Homes Hotel
+
+Este documento describe la estructura de la base de datos `hotel_db`, detallando las entidades, sus atributos y las relaciones que permiten el funcionamiento del sistema de reservaciones.
+
+## 1. Diagrama Entidad-Relación (ERD)
+
+A continuación se presenta la representación conceptual de las entidades y cómo interactúan entre sí.
+
+```mermaid
+erDiagram
+    HUESPED ||--o{ RESERVACION : realiza
+    HABITACION ||--o{ RESERVACION : contiene
+
+    HUESPED {
+        int id_huesped PK
+        string nombre
+        string apellido
+        string email UK
+        string telefono
+        string documento UK
+        string nacionalidad
+        datetime creado_en
+        datetime actualizado_en
+    }
+
+    HABITACION {
+        int id_habitacion PK
+        string numero UK
+        enum tipo
+        int capacidad
+        decimal precio_noche
+        int piso
+        boolean disponible
+        text descripcion
+        datetime creado_en
+        datetime actualizado_en
+    }
+
+    RESERVACION {
+        int id_reservacion PK
+        int id_huesped FK
+        int id_habitacion FK
+        date fecha_entrada
+        date fecha_salida
+        enum estado
+        decimal precio_total
+        text notas
+        datetime creado_en
+        datetime actualizado_en
+    }
+```
+
+---
+
+## 2. Requerimientos del Sistema de Base de Datos
+
+Para que el modelo de datos sea efectivo, debe cumplir con los siguientes requerimientos basados en las reglas de negocio del hotel.
+
+### 2.1 Requerimientos Funcionales (RF)
+Estos definen las acciones que la base de datos debe permitir y procesar.
+
+*   **RF-01: Gestión de Huéspedes:** La base de datos debe permitir el registro, actualización y consulta de información de clientes, asegurando que no existan correos o documentos duplicados.
+*   **RF-02: Control de Inventario de Habitaciones:** Debe almacenar las características de cada habitación (número, tipo, precio) y permitir el cambio dinámico de su estado de disponibilidad.
+*   **RF-03: Procesamiento de Reservaciones:** El sistema debe permitir vincular a un huésped con una habitación específica en un rango de fechas determinado.
+*   **RF-04: Cálculo de Estancia:** La base de datos debe permitir el almacenamiento del precio total de la reserva, calculado en base al precio de la habitación y la duración de la estadía.
+*   **RF-05: Clasificación de Habitaciones:** Soporte para diferentes categorías (Individual, Doble, Suite, Penthouse) con reglas de capacidad específicas.
+*   **RF-06: Trazabilidad (Auditoría):** Cada registro en las tablas principales debe contar con su fecha de creación y última actualización automática.
+
+### 2.2 Requerimientos No Funcionales (RNF)
+Estos definen las cualidades de operación y seguridad del sistema de datos.
+
+*   **RNF-01: Integridad Referencial:** Uso estricto de llaves foráneas para impedir que se creen reservaciones sin huéspedes o habitaciones válidas.
+*   **RNF-02: Disponibilidad y Rendimiento:** La base de datos debe estar optimizada mediante índices (específicamente en `email`, `documento` y `numero`) para garantizar tiempos de respuesta rápidos durante las búsquedas.
+*   **RNF-03: Escalabilidad:** El diseño relacional debe permitir incrementar el número de habitaciones y huéspedes sin degradar el rendimiento.
+*   **RNF-04: Consistencia Persistente:** Uso del motor InnoDB para asegurar que las transacciones sean ACID (Atomicidad, Consistencia, Aislamiento y Durabilidad).
+*   **RNF-05: Seguridad de Datos:** Restricción de acceso mediante usuarios específicos y contraseñas cifradas en el archivo de configuración del servidor.
+
+---
+
+## 3. Modelo Relacional
+
+El modelo relacional describe la implementación física de las tablas y sus restricciones de integridad.
+
+### Tabla: `huespedes`
+Almacena la información de contacto e identificación de los clientes.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_huesped` | INT | PK, AI | Identificador único del huésped. |
+| `nombre` | VARCHAR(100) | NOT NULL | Nombre(s) del huésped. |
+| `apellido` | VARCHAR(100) | NOT NULL | Apellido(s) del huésped. |
+| `email` | VARCHAR(150) | UNIQUE, NOT NULL | Correo electrónico (validado). |
+| `telefono` | VARCHAR(20) | NULL | Número de contacto. |
+| `documento` | VARCHAR(50) | UNIQUE, NULL | DNI, Pasaporte o ID oficial. |
+| `nacionalidad` | VARCHAR(80) | NULL | País de origen. |
+| `creado_en` | DATETIME | NOT NULL | Fecha de registro en el sistema. |
+| `actualizado_en` | DATETIME | NOT NULL | Fecha de última modificación. |
+
+### Tabla: `habitaciones`
+Define las características y disponibilidad de las unidades del hotel.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_habitacion` | INT | PK, AI | Identificador único de la habitación. |
+| `numero` | VARCHAR(10) | UNIQUE, NOT NULL | Número físico (ej: '101'). |
+| `tipo` | ENUM | NOT NULL | 'individual', 'doble', 'suite', 'penthouse'. |
+| `capacidad` | INT | DEFAULT 2 | Capacidad máxima de personas. |
+| `precio_noche` | DECIMAL(10,2)| NOT NULL | Costo por una noche de estancia. |
+| `piso` | INT | NULL | Nivel en el que se encuentra. |
+| `disponible` | BOOLEAN | DEFAULT TRUE | Estado de disponibilidad actual. |
+| `descripcion` | TEXT | NULL | Detalles adicionales (vistas, servicios). |
+
+### Tabla: `reservaciones`
+Actúa como la tabla de hechos que conecta a los huéspedes con las habitaciones.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_reservacion` | INT | PK, AI | Folio de la reservación. |
+| `id_huesped` | INT | FK | Relación con `huespedes(id_huesped)`. |
+| `id_habitacion` | INT | FK | Relación con `habitaciones(id_habitacion)`. |
+| `fecha_entrada` | DATE | NOT NULL | Fecha de inicio del hospedaje. |
+| `fecha_salida` | DATE | NOT NULL | Fecha de fin del hospedaje. |
+| [estado](file:///d:/React/googleGravioty/proyectoAdministracionBD/hotelfinal/src/components/ReservationList.jsx#17-26) | ENUM | DEFAULT 'activa' | 'activa', 'cancelada', 'completada'. |
+| `precio_total` | DECIMAL(10,2)| NULL | Monto total calculado por la estancia. |
+| `notas` | TEXT | NULL | Comentarios o peticiones especiales. |
+
+---
+
+## 3. Relaciones y Reglas de Negocio
+
+1.  **Huésped a Reservación (1:N):**
+    - Un huésped puede tener múltiples reservaciones a lo largo del tiempo.
+    - Una reservación pertenece obligatoriamente a un único huésped.
+
+2.  **Habitación a Reservación (1:N):**
+    - Una habitación puede estar asociada a muchas reservaciones (en fechas distintas).
+    - Una reservación específica se asigna a una sola habitación.
+
+3.  **Integridad Referencial:**
+    - No se puede eliminar un huésped o una habitación que tenga reservaciones activas vinculadas, garantizando la trazabilidad histórica de los datos.
+
+---
+
+## 4. Implementación SQL y Administración (Vistas)
+
+Para garantizar la fluidez en la administración de los datos, se han implementado Vistas que simplifican las consultas complejas.
+
+### 4.1 Código SQL de Creación (DDL)
+
+```sql
+-- Creación de la base de datos
+CREATE DATABASE IF NOT EXISTS hotel_db;
+USE hotel_db;
+
+-- Tabla de Huéspedes
+CREATE TABLE huespedes (
+    id_huesped INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    telefono VARCHAR(20),
+    documento VARCHAR(50) UNIQUE,
+    nacionalidad VARCHAR(80),
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabla de Habitaciones
+CREATE TABLE habitaciones (
+    id_habitacion INT AUTO_INCREMENT PRIMARY KEY,
+    numero VARCHAR(10) UNIQUE NOT NULL,
+    tipo ENUM('individual', 'doble', 'suite', 'penthouse') DEFAULT 'individual',
+    capacidad INT DEFAULT 2,
+    precio_noche DECIMAL(10, 2) NOT NULL,
+    piso INT,
+    disponible BOOLEAN DEFAULT TRUE,
+    descripcion TEXT,
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabla de Reservaciones
+CREATE TABLE reservaciones (
+    id_reservacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_huesped INT NOT NULL,
+    id_habitacion INT NOT NULL,
+    fecha_entrada DATE NOT NULL,
+    fecha_salida DATE NOT NULL,
+    estado ENUM('activa', 'cancelada', 'completada') DEFAULT 'activa',
+    precio_total DECIMAL(10, 2),
+    notas TEXT,
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_huesped) REFERENCES huespedes(id_huesped),
+    FOREIGN KEY (id_habitacion) REFERENCES habitaciones(id_habitacion)
+);
+```
+
+### 4.2 Catálogo de Funcionalidad: 10 Vistas SQL Profesionales
+
+Para demostrar la versatilidad del modelo de datos, se han implementado 10 vistas que cubren todas las áreas críticas de la gestión hotelera.
+
+#### 1. Gestión Operativa: Ocupación Actual (`view_ocupacion_actual`)
+Muestra qué habitaciones están ocupadas hoy y quién es el huésped responsable.
+```sql
+CREATE VIEW view_ocupacion_actual AS
+SELECT hab.numero, hab.tipo, CONCAT(h.nombre, ' ', h.apellido) AS huesped, r.fecha_salida AS salida_prevista
+FROM habitaciones hab
+JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+WHERE CURDATE() BETWEEN r.fecha_entrada AND r.fecha_salida AND r.estado = 'activa';
+```
+
+#### 2. Inventario: Habitaciones Disponibles (`view_disponibilidad_real`)
+Lista de habitaciones listas para ser rentadas inmediatamente.
+```sql
+CREATE VIEW view_disponibilidad_real AS
+SELECT numero, tipo, precio_noche, piso
+FROM habitaciones
+WHERE disponible = TRUE;
+```
+
+#### 3. Finanzas: Ingresos por Reservación (`view_detalle_ingresos`)
+Calcula el ingreso bruto de cada reserva basado en los días de estancia.
+```sql
+CREATE VIEW view_detalle_ingresos AS
+SELECT r.id_reservacion, hab.numero, DATEDIFF(r.fecha_salida, r.fecha_entrada) AS noches, r.precio_total
+FROM reservaciones r
+JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
+WHERE r.estado = 'completada' OR r.estado = 'activa';
+```
+
+#### 4. Marketing: Clientes VIP (`view_clientes_vip`)
+Identifica a los 10 clientes que han generado más ingresos al hotel.
+```sql
+CREATE VIEW view_clientes_vip AS
+SELECT h.nombre, h.apellido, h.email, SUM(r.precio_total) AS gasto_total
+FROM huespedes h
+JOIN reservaciones r ON h.id_huesped = h.id_huesped
+GROUP BY h.id_huesped
+ORDER BY gasto_total DESC
+LIMIT 10;
+```
+
+#### 5. Recepción: Próximas Llegadas (`view_llegadas_hoy`)
+Lista de huéspedes que deben realizar Check-In en la fecha actual.
+```sql
+CREATE VIEW view_llegadas_hoy AS
+SELECT r.id_reservacion, CONCAT(h.nombre, ' ', h.apellido) AS huesped, hab.numero AS habitacion
+FROM reservaciones r
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
+WHERE r.fecha_entrada = CURDATE();
+```
+
+#### 6. Mantenimiento: Próximas Salidas (`view_salidas_hoy`)
+Lista de habitaciones que se liberarán hoy y requerirán limpieza.
+```sql
+CREATE VIEW view_salidas_hoy AS
+SELECT hab.numero, hab.tipo, r.fecha_salida
+FROM habitaciones hab
+JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+WHERE r.fecha_salida = CURDATE() AND r.estado = 'activa';
+```
+
+#### 7. Análisis: Popularidad de Tipos de Habitación (`view_popularidad_habitaciones`)
+Muestra qué tipos de habitación son los más reservados.
+```sql
+CREATE VIEW view_popularidad_habitaciones AS
+SELECT hab.tipo, COUNT(r.id_reservacion) AS total_reservas
+FROM habitaciones hab
+LEFT JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+GROUP BY hab.tipo
+ORDER BY total_reservas DESC;
+```
+
+#### 8. Auditoría: Reservas Canceladas (`view_analisis_cancelaciones`)
+Reporte de reservaciones que no se concretaron para análisis de pérdida.
+```sql
+CREATE VIEW view_analisis_cancelaciones AS
+SELECT r.id_reservacion, h.nombre, h.apellido, r.precio_total AS monto_perdido, r.creado_en
+FROM reservaciones r
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+WHERE r.estado = 'cancelada';
+```
+
+#### 9. Contabilidad: Ingresos Mensuales (`view_ingresos_mensuales`)
+Resumen de ganancias agrupado por mes y año.
+```sql
+CREATE VIEW view_ingresos_mensuales AS
+SELECT YEAR(fecha_entrada) AS anio, MONTH(fecha_entrada) AS mes, SUM(precio_total) AS total_ingresos
+FROM reservaciones
+WHERE estado != 'cancelada'
+GROUP BY anio, mes;
+```
+
+#### 10. Gestión: Estancias de Larga Duración (`view_estancias_largas`)
+Lista de clientes con estancias superiores a 7 días (potenciales clientes para descuentos).
+```sql
+CREATE VIEW view_estancias_largas AS
+SELECT CONCAT(h.nombre, ' ', h.apellido) AS huesped, r.fecha_entrada, r.fecha_salida, DATEDIFF(r.fecha_salida, r.fecha_entrada) AS dias
+FROM reservaciones r
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+WHERE DATEDIFF(r.fecha_salida, r.fecha_entrada) > 7;
+```
+
+---
+
+## 5. Conclusión: Impacto en la Fluidez
+Este catálogo de 10 vistas demuestra que el modelo no solo almacena datos, sino que genera **Inteligencia de Negocio**. Cada vista permite que la aplicación "Better Homes Hotel" responda con fluidez a las necesidades de recepcionistas, administradores y dueños por igual.
+
+
