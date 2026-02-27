@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-900: #1e3a8a;
+  
+  --color-accent-400: #f87171;
+  --color-accent-500: #ef4444;
+  --color-accent-600: #dc2626;
+
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-800: #1e293b;
+  --color-surface-900: #0f172a;
+}
+
+body {
+  @apply bg-surface-50 text-surface-900 font-sans antialiased;
+}
+
+/* Custom Base Styles and Micro-Animations */
+.btn-primary {
+  @apply bg-brand-600 hover:bg-brand-500 text-white font-medium py-2 px-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+  @apply bg-accent-500 hover:bg-accent-400 text-white font-medium py-2 px-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply border border-surface-800 text-surface-800 hover:bg-surface-800 hover:text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-surface-100 overflow-hidden hover:shadow-lg transition-shadow duration-300;
+}
+
+.input-field {
+  @apply block w-full rounded-lg border-surface-100 border pt-2 px-4 pb-2 text-surface-900 shadow-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none transition-all duration-200 mt-1;
+}
+
+.label {
+  @apply block text-sm font-medium text-surface-800;
+}
