@@ -1,32 +1,28 @@
-# 🏨 Better Homes Hotel - Room Management System
+# 🏨 Better Homes Hotel - Sistema de Gestión de Reservaciones
 
-¡Bienvenido al sistema de gestión de reservaciones de **Better Homes Hotel**! Este proyecto es una solución integral que conecta una aplicación moderna de **React** con una robusta base de datos **MySQL**, diseñada para optimizar la fluidez operativa y financiera del hotel.
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=Sequelize&logoColor=white)
 
----
-
-## 🛠️ Stack Tecnológico
-
-*   **Frontend:** React 18, Vite, Redux Toolkit, Tailwind CSS, Lucide React.
-*   **Backend:** Node.js, Express, Sequelize ORM.
-*   **Base de Datos:** MySQL 8.0.
-*   **Documentación:** Markdown, Mermaid.js.
+Este proyecto representa una solución integral para la administración hotelera, conectando un frontend moderno en **React** con un ecosistema de datos robusto en **MySQL**. Diseñado bajo principios de **fluidez de información**, integridad relacional e inteligencia de negocio.
 
 ---
 
-## 📂 Estructura del Proyecto
-
-*   `/hotelfinal`: Aplicación frontend (React + Redux).
-*   `/server`: Servidor API REST (Node + Sequelize).
-*   `/bdMysql`: Scripts de creación y semillas de la base de datos.
-*   `/documentacion_final.html`: Documentación exportable a PDF.
+## 📑 Índice de Contenido
+1. [Diagrama Entidad-Relación (ERD)](#1-diagrama-entidad-relación-erd)
+2. [Requerimientos del Sistema](#2-requerimientos-del-sistema)
+3. [Modelo Relacional (Tablas)](#3-modelo-relacional-tablas)
+4. [Código SQL de Creación (DDL)](#4-código-sql-de-creación-ddl)
+5. [Catálogo de 10 Vistas SQL (Fluidez de Datos)](#5-catálogo-de-10-vistas-sql-fluidez-de-datos)
+6. [Instalación y Configuración](#6-instalación-y-configuración)
 
 ---
-
-# 📊 Documentación de la Base de Datos (`hotel_db`)
 
 ## 1. Diagrama Entidad-Relación (ERD)
 
-Representación conceptual de cómo fluyen los datos entre huéspedes, habitaciones y reservaciones.
+Visualización de las entidades principales y sus interacciones.
 
 ```mermaid
 erDiagram
@@ -69,51 +65,96 @@ erDiagram
 ## 2. Requerimientos del Sistema
 
 ### 2.1 Requerimientos Funcionales (RF)
-*   **RF-01:** Gestión completa de Huéspedes (CRUD).
-*   **RF-02:** Control de inventario y disponibilidad de Habitaciones.
-*   **RF-03:** Procesamiento de reservaciones con validación de fechas.
-*   **RF-04:** Cálculo automático de montos basados en estancia.
-*   **RF-05:** Soporte para múltiples categorías (Suite, Penthouse, etc.).
+*   **RF-01: Gestión de Huéspedes:** Registro único por correo/documento.
+*   **RF-02: Control de Inventario:** Gestión dinámica de disponibilidad de habitaciones.
+*   **RF-03: Procesamiento de Reservas:** Vinculación temporal de activos.
+*   **RF-04: Cálculo Financiero:** Estimación automática de costos totales.
+*   **RF-05: Auditoría:** Trazabilidad de creaciones y actualizaciones.
 
 ### 2.2 Requerimientos No Funcionales (RNF)
-*   **RNF-01:** Integridad referencial mandatoria (Foreign Keys).
-*   **RNF-02:** Rendimiento optimizado mediante índices en campos únicos.
-*   **RNF-03:** Transacciones ACID garantizadas por el motor InnoDB.
-*   **RNF-04:** Escalabilidad para soportar alto volumen de registros.
+*   **RNF-01: Integridad Referencial:** Restricciones estrictas de FK.
+*   **RNF-02: Rendimiento:** Indexación en campos de búsqueda clave.
+*   **RNF-03: Consistencia:** Motor InnoDB para transacciones ACID.
+*   **RNF-04: Seguridad:** Credenciales cifradas y accesos restringidos.
 
 ---
 
-## 3. Implementación SQL e Inteligencia de Datos
+## 3. Modelo Relacional (Tablas)
 
-### 3.1 Catálogo de 10 Vistas Profesionales
-El sistema incluye 10 vistas SQL diseñadas para la **fluidez de la información**:
-
-1.  **Ocupación Actual:** Habitaciones ocupadas hoy y responsables.
-2.  **Disponibilidad Real:** Inventario inmediato para nuevas ventas.
-3.  **Detalle de Ingresos:** Reporte financiero por reservación.
-4.  **Clientes VIP:** Top 10 de huéspedes según su inversión total.
-5.  **Próximas Llegadas:** Lista de Check-ins para el día de hoy.
-6.  **Próximas Salidas:** Lista de Check-outs para mantenimiento y limpieza.
-7.  **Popularidad de Habitaciones:** Análisis de demanda por categoría.
-8.  **Auditoría de Cancelaciones:** Registro de pérdidas y motivos.
-9.  **Ingresos Mensuales:** Reporte contable periódico (Mes/Año).
-10. **Estancias de Larga Duración:** Identificación de clientes para programas de fidelidad.
+| Tabla | Propósito | Campos Clave |
+| :--- | :--- | :--- |
+| `huespedes` | Perfiles de clientes | `email`, `documento` |
+| `habitaciones` | Inventario físico | `numero`, `tipo` |
+| `reservaciones` | Historial y facturación | `id_huesped`, `id_habitacion` |
 
 ---
 
-## 🚀 Instalación y Ejecución
+## 4. Código SQL de Creación (DDL)
 
-### 1. Base de Datos
-Importa el archivo localizado en `bdMysql/seed_data.sql` en tu gestor MySQL.
+```sql
+-- Estructura Principal
+CREATE DATABASE hotel_db;
+USE hotel_db;
 
-### 2. Servidor (Backend)
+CREATE TABLE huespedes (
+    id_huesped INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    documento VARCHAR(50) UNIQUE
+);
+
+CREATE TABLE habitaciones (
+    id_habitacion INT AUTO_INCREMENT PRIMARY KEY,
+    numero VARCHAR(10) UNIQUE NOT NULL,
+    tipo ENUM('individual', 'doble', 'suite', 'penthouse'),
+    precio_noche DECIMAL(10, 2) NOT NULL,
+    disponible BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE reservaciones (
+    id_reservacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_huesped INT NOT NULL,
+    id_habitacion INT NOT NULL,
+    fecha_entrada DATE NOT NULL,
+    fecha_salida DATE NOT NULL,
+    precio_total DECIMAL(10, 2),
+    FOREIGN KEY (id_huesped) REFERENCES huespedes(id_huesped),
+    FOREIGN KEY (id_habitacion) REFERENCES habitaciones(id_habitacion)
+);
+```
+
+---
+
+## 5. Catálogo de 10 Vistas SQL (Fluidez de Datos)
+
+Estas vistas permiten al negocio operar con rapidez sin lógica adicional en el backend:
+
+1.  **`view_ocupacion_actual`**: Qué habitaciones están ocupadas HOY.
+2.  **`view_disponibilidad_real`**: Habitaciones listas para ser vendidas.
+3.  **`view_detalle_ingresos`**: Reporte financiero por reserva.
+4.  **`view_clientes_vip`**: Top 10 de clientes con mayor consumo.
+5.  **`view_llegadas_hoy`**: Planificación de recepciones (Check-ins).
+6.  **`view_salidas_hoy`**: Planificación de limpieza (Check-outs).
+7.  **`view_popularidad_habitaciones`**: Análisis de demanda por tipo.
+8.  **`view_analisis_cancelaciones`**: Auditoría de pérdida de ingresos.
+9.  **`view_ingresos_mensuales`**: Consolidado contable periódico.
+10. **`view_estancias_largas`**: Identificación de clientes frecuentes.
+
+---
+
+## 6. Instalación y Configuración
+
+### 💾 Base de Datos
+Importa los datos de prueba (`seed_data.sql`) después de ejecutar el DDL.
+
+### ⚙️ Backend (Servidor)
 ```bash
 cd server
 npm install
-npm run dev
+npm start
 ```
 
-### 3. Aplicación (Frontend)
+### 🎨 Frontend (Cliente)
 ```bash
 cd hotelfinal
 npm install
@@ -121,9 +162,4 @@ npm run dev
 ```
 
 ---
-
-## 📄 Exportación a PDF
-Para ver la documentación técnica completa lista para entregar, abre el archivo `documentacion_final.html` en tu navegador y utiliza la función **"Exportar a PDF"**.
-
----
-*Desarrollado para el proyecto final de Administración de Bases de Datos.*
+*Este proyecto es parte de la asignatura de Administración de Bases de Datos.*
