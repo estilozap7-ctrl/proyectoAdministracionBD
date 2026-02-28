@@ -137,11 +137,79 @@ CREATE TABLE reservaciones (
 
 ---
 
-## 5. Catálogo de 10 Vistas SQL (Fluidez de Datos)
+## 5. Análisis y Fluidez de Datos (Vistas SQL)
 
-Estas vistas permiten al negocio operar con rapidez sin lógica adicional en el backend. Puedes ejecutarlas y consultarlas directamente en MySQL Workbench.
+Estas vistas permiten realizar análisis rápidos y operar el negocio con eficiencia sin lógica adicional en el backend. Puedes ejecutarlas y consultarlas directamente en MySQL Workbench.
 
-### 📋 Listado Detallado y Consultas
+### � Indicadores Básicos de Análisis
+
+#### 1. Cantidad de Habitaciones Libres (`view_total_habitaciones_libres`)
+Muestra el total de habitaciones que están marcadas como disponibles.
+```sql
+CREATE OR REPLACE VIEW view_total_habitaciones_libres AS
+SELECT COUNT(*) AS total_disponibles
+FROM habitaciones
+WHERE disponible = TRUE;
+
+-- Consulta en Workbench:
+SELECT * FROM view_total_habitaciones_libres;
+```
+
+#### 2. Cantidad de Usuarios Registrados (`view_total_huespedes`)
+Conteo total de huéspedes en la base de datos.
+```sql
+CREATE OR REPLACE VIEW view_total_huespedes AS
+SELECT COUNT(*) AS total_registrados
+FROM huespedes;
+
+-- Consulta en Workbench:
+SELECT * FROM view_total_huespedes;
+```
+
+#### 3. Reservaciones por Mes (`view_conteo_reservas_mensuales`)
+Cantidad de reservaciones realizadas agrupadas por mes y año.
+```sql
+CREATE OR REPLACE VIEW view_conteo_reservas_mensuales AS
+SELECT YEAR(fecha_entrada) AS anio, MONTH(fecha_entrada) AS mes, COUNT(*) AS total_reservas
+FROM reservaciones
+GROUP BY anio, mes
+ORDER BY anio DESC, mes DESC;
+
+-- Consulta en Workbench:
+SELECT * FROM view_conteo_reservas_mensuales;
+```
+
+#### 4. Usuarios Frecuentes (`view_huespedes_frecuentes`)
+Huéspedes con el mayor número de estancias en el hotel.
+```sql
+CREATE OR REPLACE VIEW view_huespedes_frecuentes AS
+SELECT CONCAT(h.nombre, ' ', h.apellido) AS huesped, h.email, COUNT(r.id_reservacion) AS total_estancias
+FROM huespedes h
+JOIN reservaciones r ON h.id_huesped = h.id_huesped
+GROUP BY h.id_huesped
+ORDER BY total_estancias DESC;
+
+-- Consulta en Workbench:
+SELECT * FROM view_huespedes_frecuentes;
+```
+
+#### 5. Habitaciones más Utilizadas (`view_habitaciones_populares`)
+Lista de habitaciones con mayor número de reservaciones acumuladas.
+```sql
+CREATE OR REPLACE VIEW view_habitaciones_populares AS
+SELECT hab.numero, hab.tipo, COUNT(r.id_reservacion) AS veces_reservada
+FROM habitaciones hab
+JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+GROUP BY hab.id_habitacion
+ORDER BY veces_reservada DESC;
+
+-- Consulta en Workbench:
+SELECT * FROM view_habitaciones_populares;
+```
+
+---
+
+### 📋 Catálogo de 10 Vistas Profesionales (Gestión Operativa)
 
 #### 1. Ocupación Actual (`view_ocupacion_actual`)
 ¿Qué habitaciones están ocupadas HOY?
