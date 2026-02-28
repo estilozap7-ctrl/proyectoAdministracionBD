@@ -139,18 +139,142 @@ CREATE TABLE reservaciones (
 
 ## 5. Catálogo de 10 Vistas SQL (Fluidez de Datos)
 
-Estas vistas permiten al negocio operar con rapidez sin lógica adicional en el backend:
+Estas vistas permiten al negocio operar con rapidez sin lógica adicional en el backend. Puedes ejecutarlas y consultarlas directamente en MySQL Workbench.
 
-1.  **`view_ocupacion_actual`**: Qué habitaciones están ocupadas HOY.
-2.  **`view_disponibilidad_real`**: Habitaciones listas para ser vendidas.
-3.  **`view_detalle_ingresos`**: Reporte financiero por reserva.
-4.  **`view_clientes_vip`**: Top 10 de clientes con mayor consumo.
-5.  **`view_llegadas_hoy`**: Planificación de recepciones (Check-ins).
-6.  **`view_salidas_hoy`**: Planificación de limpieza (Check-outs).
-7.  **`view_popularidad_habitaciones`**: Análisis de demanda por tipo.
-8.  **`view_analisis_cancelaciones`**: Auditoría de pérdida de ingresos.
-9.  **`view_ingresos_mensuales`**: Consolidado contable periódico.
-10. **`view_estancias_largas`**: Identificación de clientes frecuentes.
+### 📋 Listado Detallado y Consultas
+
+#### 1. Ocupación Actual (`view_ocupacion_actual`)
+¿Qué habitaciones están ocupadas HOY?
+```sql
+CREATE OR REPLACE VIEW view_ocupacion_actual AS
+SELECT hab.numero, hab.tipo, CONCAT(h.nombre, ' ', h.apellido) AS huesped, r.fecha_salida
+FROM habitaciones hab
+JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+WHERE CURDATE() BETWEEN r.fecha_entrada AND r.fecha_salida AND r.estado = 'activa';
+
+-- Consulta en Workbench:
+SELECT * FROM view_ocupacion_actual;
+```
+
+#### 2. Disponibilidad Real (`view_disponibilidad_real`)
+Habitaciones listas para ser vendidas.
+```sql
+CREATE OR REPLACE VIEW view_disponibilidad_real AS
+SELECT numero, tipo, precio_noche, piso
+FROM habitaciones
+WHERE disponible = TRUE;
+
+-- Consulta en Workbench:
+SELECT * FROM view_disponibilidad_real;
+```
+
+#### 3. Detalle de Ingresos (`view_detalle_ingresos`)
+Reporte financiero por reserva.
+```sql
+CREATE OR REPLACE VIEW view_detalle_ingresos AS
+SELECT r.id_reservacion, hab.numero, DATEDIFF(r.fecha_salida, r.fecha_entrada) AS noches, r.precio_total
+FROM reservaciones r
+JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
+WHERE r.estado IN ('completada', 'activa');
+
+-- Consulta en Workbench (Total):
+SELECT SUM(precio_total) FROM view_detalle_ingresos;
+```
+
+#### 4. Clientes VIP (`view_clientes_vip`)
+Top 10 de clientes con mayor consumo acumulado.
+```sql
+CREATE OR REPLACE VIEW view_clientes_vip AS
+SELECT h.nombre, h.apellido, h.email, SUM(r.precio_total) AS gasto_total
+FROM huespedes h
+JOIN reservaciones r ON h.id_huesped = h.id_huesped
+GROUP BY h.id_huesped
+ORDER BY gasto_total DESC LIMIT 10;
+
+-- Consulta en Workbench:
+SELECT * FROM view_clientes_vip;
+```
+
+#### 5. Llegadas de Hoy (`view_llegadas_hoy`)
+Planificación de recepciones (Check-ins).
+```sql
+CREATE OR REPLACE VIEW view_llegadas_hoy AS
+SELECT r.id_reservacion, CONCAT(h.nombre, ' ', h.apellido) AS huesped, hab.numero
+FROM reservaciones r
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
+WHERE r.fecha_entrada = CURDATE();
+
+-- Consulta en Workbench:
+SELECT * FROM view_llegadas_hoy;
+```
+
+#### 6. Salidas de Hoy (`view_salidas_hoy`)
+Planificación de limpieza (Check-outs).
+```sql
+CREATE OR REPLACE VIEW view_salidas_hoy AS
+SELECT hab.numero, hab.tipo, r.fecha_salida
+FROM habitaciones hab
+JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+WHERE r.fecha_salida = CURDATE() AND r.estado = 'activa';
+
+-- Consulta en Workbench:
+SELECT * FROM view_salidas_hoy;
+```
+
+#### 7. Popularidad de Habitaciones (`view_popularidad_habitaciones`)
+Análisis de demanda por tipo de habitación.
+```sql
+CREATE OR REPLACE VIEW view_popularidad_habitaciones AS
+SELECT hab.tipo, COUNT(r.id_reservacion) AS total_reservas
+FROM habitaciones hab
+LEFT JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
+GROUP BY hab.tipo
+ORDER BY total_reservas DESC;
+
+-- Consulta en Workbench:
+SELECT * FROM view_popularidad_habitaciones;
+```
+
+#### 8. Análisis de Cancelaciones (`view_analisis_cancelaciones`)
+Auditoría de pérdida de ingresos por cancelaciones.
+```sql
+CREATE OR REPLACE VIEW view_analisis_cancelaciones AS
+SELECT r.id_reservacion, h.nombre, h.apellido, r.precio_total AS monto_perdido
+FROM reservaciones r
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+WHERE r.estado = 'cancelada';
+
+-- Consulta en Workbench:
+SELECT * FROM view_analisis_cancelaciones;
+```
+
+#### 9. Ingresos Mensuales (`view_ingresos_mensuales`)
+Consolidado contable periódico agrupado por mes.
+```sql
+CREATE OR REPLACE VIEW view_ingresos_mensuales AS
+SELECT YEAR(fecha_entrada) AS anio, MONTH(fecha_entrada) AS mes, SUM(precio_total) AS total_ingresos
+FROM reservaciones
+WHERE estado != 'cancelada'
+GROUP BY anio, mes;
+
+-- Consulta en Workbench:
+SELECT * FROM view_ingresos_mensuales;
+```
+
+#### 10. Estancias Largas (`view_estancias_largas`)
+Identificación de clientes frecuentes con estancias > 7 días.
+```sql
+CREATE OR REPLACE VIEW view_estancias_largas AS
+SELECT CONCAT(h.nombre, ' ', h.apellido) AS huesped, r.fecha_entrada, r.fecha_salida, DATEDIFF(r.fecha_salida, r.fecha_entrada) AS dias
+FROM reservaciones r
+JOIN huespedes h ON r.id_huesped = h.id_huesped
+WHERE DATEDIFF(r.fecha_salida, r.fecha_entrada) > 7;
+
+-- Consulta en Workbench:
+SELECT * FROM view_estancias_largas;
+```
 
 ---
 

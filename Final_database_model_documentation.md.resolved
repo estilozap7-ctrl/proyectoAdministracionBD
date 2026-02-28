@@ -203,105 +203,135 @@ Para demostrar la versatilidad del modelo de datos, se han implementado 10 vista
 #### 1. Gestión Operativa: Ocupación Actual (`view_ocupacion_actual`)
 Muestra qué habitaciones están ocupadas hoy y quién es el huésped responsable.
 ```sql
-CREATE VIEW view_ocupacion_actual AS
+CREATE OR REPLACE VIEW view_ocupacion_actual AS
 SELECT hab.numero, hab.tipo, CONCAT(h.nombre, ' ', h.apellido) AS huesped, r.fecha_salida AS salida_prevista
 FROM habitaciones hab
 JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
 JOIN huespedes h ON r.id_huesped = h.id_huesped
 WHERE CURDATE() BETWEEN r.fecha_entrada AND r.fecha_salida AND r.estado = 'activa';
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_ocupacion_actual;
 ```
 
 #### 2. Inventario: Habitaciones Disponibles (`view_disponibilidad_real`)
 Lista de habitaciones listas para ser rentadas inmediatamente.
 ```sql
-CREATE VIEW view_disponibilidad_real AS
+CREATE OR REPLACE VIEW view_disponibilidad_real AS
 SELECT numero, tipo, precio_noche, piso
 FROM habitaciones
 WHERE disponible = TRUE;
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_disponibilidad_real;
 ```
 
 #### 3. Finanzas: Ingresos por Reservación (`view_detalle_ingresos`)
 Calcula el ingreso bruto de cada reserva basado en los días de estancia.
 ```sql
-CREATE VIEW view_detalle_ingresos AS
+CREATE OR REPLACE VIEW view_detalle_ingresos AS
 SELECT r.id_reservacion, hab.numero, DATEDIFF(r.fecha_salida, r.fecha_entrada) AS noches, r.precio_total
 FROM reservaciones r
 JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
 WHERE r.estado = 'completada' OR r.estado = 'activa';
+
+-- Búsqueda sugerida para Workbench:
+SELECT SUM(precio_total) FROM view_detalle_ingresos;
 ```
 
 #### 4. Marketing: Clientes VIP (`view_clientes_vip`)
 Identifica a los 10 clientes que han generado más ingresos al hotel.
 ```sql
-CREATE VIEW view_clientes_vip AS
+CREATE OR REPLACE VIEW view_clientes_vip AS
 SELECT h.nombre, h.apellido, h.email, SUM(r.precio_total) AS gasto_total
 FROM huespedes h
 JOIN reservaciones r ON h.id_huesped = h.id_huesped
 GROUP BY h.id_huesped
 ORDER BY gasto_total DESC
 LIMIT 10;
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_clientes_vip;
 ```
 
 #### 5. Recepción: Próximas Llegadas (`view_llegadas_hoy`)
 Lista de huéspedes que deben realizar Check-In en la fecha actual.
 ```sql
-CREATE VIEW view_llegadas_hoy AS
+CREATE OR REPLACE VIEW view_llegadas_hoy AS
 SELECT r.id_reservacion, CONCAT(h.nombre, ' ', h.apellido) AS huesped, hab.numero AS habitacion
 FROM reservaciones r
 JOIN huespedes h ON r.id_huesped = h.id_huesped
 JOIN habitaciones hab ON r.id_habitacion = hab.id_habitacion
 WHERE r.fecha_entrada = CURDATE();
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_llegadas_hoy;
 ```
 
 #### 6. Mantenimiento: Próximas Salidas (`view_salidas_hoy`)
 Lista de habitaciones que se liberarán hoy y requerirán limpieza.
 ```sql
-CREATE VIEW view_salidas_hoy AS
+CREATE OR REPLACE VIEW view_salidas_hoy AS
 SELECT hab.numero, hab.tipo, r.fecha_salida
 FROM habitaciones hab
 JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
 WHERE r.fecha_salida = CURDATE() AND r.estado = 'activa';
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_salidas_hoy;
 ```
 
 #### 7. Análisis: Popularidad de Tipos de Habitación (`view_popularidad_habitaciones`)
 Muestra qué tipos de habitación son los más reservados.
 ```sql
-CREATE VIEW view_popularidad_habitaciones AS
+CREATE OR REPLACE VIEW view_popularidad_habitaciones AS
 SELECT hab.tipo, COUNT(r.id_reservacion) AS total_reservas
 FROM habitaciones hab
 LEFT JOIN reservaciones r ON hab.id_habitacion = r.id_habitacion
 GROUP BY hab.tipo
 ORDER BY total_reservas DESC;
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_popularidad_habitaciones;
 ```
 
 #### 8. Auditoría: Reservas Canceladas (`view_analisis_cancelaciones`)
 Reporte de reservaciones que no se concretaron para análisis de pérdida.
 ```sql
-CREATE VIEW view_analisis_cancelaciones AS
+CREATE OR REPLACE VIEW view_analisis_cancelaciones AS
 SELECT r.id_reservacion, h.nombre, h.apellido, r.precio_total AS monto_perdido, r.creado_en
 FROM reservaciones r
 JOIN huespedes h ON r.id_huesped = h.id_huesped
 WHERE r.estado = 'cancelada';
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_analisis_cancelaciones;
 ```
 
 #### 9. Contabilidad: Ingresos Mensuales (`view_ingresos_mensuales`)
 Resumen de ganancias agrupado por mes y año.
 ```sql
-CREATE VIEW view_ingresos_mensuales AS
+CREATE OR REPLACE VIEW view_ingresos_mensuales AS
 SELECT YEAR(fecha_entrada) AS anio, MONTH(fecha_entrada) AS mes, SUM(precio_total) AS total_ingresos
 FROM reservaciones
 WHERE estado != 'cancelada'
 GROUP BY anio, mes;
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_ingresos_mensuales;
 ```
 
 #### 10. Gestión: Estancias de Larga Duración (`view_estancias_largas`)
 Lista de clientes con estancias superiores a 7 días (potenciales clientes para descuentos).
 ```sql
-CREATE VIEW view_estancias_largas AS
+CREATE OR REPLACE VIEW view_estancias_largas AS
 SELECT CONCAT(h.nombre, ' ', h.apellido) AS huesped, r.fecha_entrada, r.fecha_salida, DATEDIFF(r.fecha_salida, r.fecha_entrada) AS dias
 FROM reservaciones r
 JOIN huespedes h ON r.id_huesped = h.id_huesped
 WHERE DATEDIFF(r.fecha_salida, r.fecha_entrada) > 7;
+
+-- Búsqueda sugerida para Workbench:
+SELECT * FROM view_estancias_largas;
 ```
 
 ---
