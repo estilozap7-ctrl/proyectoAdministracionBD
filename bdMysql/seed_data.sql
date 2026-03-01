@@ -1,5 +1,10 @@
 USE hotel_db;
 
+-- 1. Arreglamos la columna actualizado_en para que se llene y actualice sola
+ALTER TABLE habitaciones
+MODIFY actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 2. Ahora sí, insertamos todas las habitaciones
 INSERT INTO
     habitaciones (
         numero,
