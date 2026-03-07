@@ -12,7 +12,7 @@ const app = express();
 app.use(morgan('dev'));
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    credentials: false,
+    credentials: true,
 }));
 app.use(cookieParser());
 app.use(bodyParser.json());

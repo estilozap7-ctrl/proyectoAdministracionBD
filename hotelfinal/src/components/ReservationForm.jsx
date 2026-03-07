@@ -113,9 +113,8 @@ const ReservationForm = ({ editingReservation, onClearEdit }) => {
             {/* Título */}
             <div className="flex justify-between items-center mb-6 mt-2 px-2">
                 <h3 className="text-xl font-black font-mono text-black flex items-center gap-3 uppercase tracking-widest bg-white px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                    {editingReservation
-                        ? <><Save className="w-6 h-6 text-red-600" /> Editar Reservación</>
-                        : <><UserPlus className="w-6 h-6 text-green-600" /> Nueva Reservación</>}
+                    {editingReservation ? <Save className="w-6 h-6 text-red-600" /> : <UserPlus className="w-6 h-6 text-green-600" />}
+                    <span>{editingReservation ? 'Editar Reservación' : 'Nueva Reservación'}</span>
                 </h3>
                 {editingReservation && (
                     <button onClick={onClearEdit}
@@ -234,9 +233,8 @@ const ReservationForm = ({ editingReservation, onClearEdit }) => {
                 <div className="pt-2 flex justify-end">
                     <button type="submit" disabled={loading}
                         className={`flex items-center gap-2 font-mono font-black uppercase tracking-widest px-6 py-3 border-4 border-black shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0_0_rgba(0,0,0,1)] transition-all disabled:opacity-60 disabled:cursor-not-allowed ${editingReservation ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
-                        {loading
-                            ? <><Loader2 className="w-5 h-5 animate-spin" /> Guardando...</>
-                            : editingReservation ? 'Actualizar' : 'Guardar'}
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                        <span>{loading ? 'Guardando...' : (editingReservation ? 'Actualizar' : 'Guardar')}</span>
                     </button>
                 </div>
             </form>
