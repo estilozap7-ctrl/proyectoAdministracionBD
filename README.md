@@ -209,7 +209,7 @@ SELECT * FROM view_habitaciones_populares;
 
 ---
 
-### 📋 Catálogo de 10 Vistas Profesionales (Gestión Operativa)
+### 📋 Catálogo de 10 Vistas (Gestión Operativa)
 
 #### 1. Ocupación Actual (`view_ocupacion_actual`)
 ¿Qué habitaciones están ocupadas HOY?
