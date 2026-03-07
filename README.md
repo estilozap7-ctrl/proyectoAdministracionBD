@@ -23,16 +23,45 @@ Este proyecto representa una solución integral para la administración hotelera
 ---
 
 ## 📑 Índice de Contenido
-1. [Diagrama Entidad-Relación (ERD)](#1-diagrama-entidad-relación-erd)
-2. [Requerimientos del Sistema](#2-requerimientos-del-sistema)
-3. [Modelo Relacional (Tablas)](#3-modelo-relacional-tablas)
-4. [Código SQL de Creación (DDL)](#4-código-sql-de-creación-ddl)
-5. [Catálogo de 10 Vistas SQL (Fluidez de Datos)](#5-catálogo-de-10-vistas-sql-fluidez-de-datos)
-6. [Instalación y Configuración](#6-instalación-y-configuración)
+1. [Objetivo General](#1-objetivo-general)
+2. [Objetivos Específicos](#2-objetivos-específicos)
+3. [Contexto del Negocio y Problema Operativo](#3-contexto-del-negocio-y-problema-operativo)
+4. [Diagrama Entidad-Relación (ERD)](#4-diagrama-entidad-relación-erd)
+5. [Requerimientos del Sistema](#5-requerimientos-del-sistema)
+6. [Modelo Relacional (Tablas)](#6-modelo-relacional-tablas)
+7. [Código SQL de Creación (DDL)](#7-código-sql-de-creación-ddl)
+8. [Catálogo de 10 Vistas SQL (Fluidez de Datos)](#8-catálogo-de-10-vistas-sql-fluidez-de-datos)
+9. [Instalación y Configuración](#9-instalación-y-configuración)
 
 ---
 
-## 1. Diagrama Entidad-Relación (ERD)
+## 1. Objetivo General
+Desarrollar y documentar un sistema integral de administración de bases de datos para "Better Homes Hotel" que permita la gestión eficiente de huéspedes, habitaciones y reservaciones, garantizando la integridad referencial, la fluidez de datos mediante vistas SQL y un diseño que refleje con precisión las reglas operativas de un entorno de hospitalidad real.
+
+---
+
+## 2. Objetivos Específicos
+*   **Diseñar un Modelo Optriginal:** Crear un Diagrama Entidad-Relación (ERD) y un Modelo Relacional que capturen la estructura central del negocio hotelero.
+*   **Garantizar la Integridad de la Información:** Implementar restricciones (UNIQUE, NOT NULL, claves foráneas) que eviten información duplicada, registros huérfanos o transacciones incompletas.
+*   **Facilitar la Inteligencia de Negocios:** Desarrollar un catálogo robusto de vistas SQL que traduzcan los datos crudos en información operativa y financiera comprensible en tiempo real.
+*   **Desplegar una Solución Funcional:** Conectar el esquema de datos (`MySQL`) con una interfaz de usuario (`React`) utilizando una API en el lado del servidor (`Node.js`/`Express`).
+
+---
+
+## 3. Contexto del Negocio y Problema Operativo
+
+**Contexto del Negocio:**
+"Better Homes Hotel" es una empresa cuyo modelo de negocio central se basa en la renta temporal de espacios físicos (habitaciones) a individuos (huéspedes). La operación requiere una logística exacta para evitar pérdidas financieras por habitaciones vacías (lucro cesante), mitigar el riesgo de *overbooking* (sobreventa) e identificar claramente a su cartera de clientes.
+
+**El Problema Operativo:**
+El hotel necesita un sistema centralizado de información que logre:
+1. Mantener un registro comercial e identificativo de sus clientes.
+2. Controlar en tiempo real el catálogo de sus activos rentables y sus niveles de precio.
+3. Registrar los eventos transaccionales donde un cliente adquiere el derecho de uso de un activo por un tiempo definido.
+
+---
+
+## 4. Diagrama Entidad-Relación (ERD)
 
 Visualización de las entidades principales y sus interacciones.
 
@@ -74,7 +103,7 @@ erDiagram
 
 ---
 
-## 2. Requerimientos del Sistema
+## 5. Requerimientos del Sistema
 
 ### 2.1 Requerimientos Funcionales (RF)
 *   **RF-01: Gestión de Huéspedes:** Registro único por correo/documento.
@@ -91,7 +120,7 @@ erDiagram
 
 ---
 
-## 3. Modelo Relacional (Tablas)
+## 6. Modelo Relacional (Tablas)
 
 | Tabla | Propósito | Campos Clave |
 | :--- | :--- | :--- |
@@ -101,7 +130,7 @@ erDiagram
 
 ---
 
-## 4. Código SQL de Creación (DDL)
+## 7. Código SQL de Creación (DDL)
 
 ```sql
 -- Estructura Principal
@@ -137,7 +166,7 @@ CREATE TABLE reservaciones (
 
 ---
 
-## 5. Análisis y Fluidez de Datos (Vistas SQL)
+## 8. Análisis y Fluidez de Datos (Vistas SQL)
 
 Estas vistas permiten realizar análisis rápidos y operar el negocio con eficiencia sin lógica adicional en el backend. Puedes ejecutarlas y consultarlas directamente en MySQL Workbench.
 
@@ -209,7 +238,7 @@ SELECT * FROM view_habitaciones_populares;
 
 ---
 
-### 📋 Catálogo de 10 Vistas Profesionales (Gestión Operativa)
+### 📋 Catálogo de 10 Vistas Gestión Operativa
 
 #### 1. Ocupación Actual (`view_ocupacion_actual`)
 ¿Qué habitaciones están ocupadas HOY?
@@ -346,7 +375,7 @@ SELECT * FROM view_estancias_largas;
 
 ---
 
-## 6. Instalación y Configuración
+## 9. Instalación y Configuración
 
 ### 💾 Base de Datos
 Importa los datos de prueba (`seed_data.sql`) después de ejecutar el DDL.
