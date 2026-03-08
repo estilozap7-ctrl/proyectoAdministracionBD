@@ -12,7 +12,7 @@ Este proyecto representa una solución integral para la administración hotelera
 
 ### 👥 Desarrollado por:
 *   **LUIS ALBERTO BUELVAS COGOLLO** - Grupo 56647
-*   **CAMILA ANDREA HERRERA GAMBOA** - Grupo 56648
+*   **EMI JOHANA GOMEZ OYOLA** - Grupo 56647
 
 **Curso:** ADMINISTRACION DE BASES DE DATOS  
 **Docente:** SERGIO ALEXANDER MORA NOVOA  
